@@ -9,11 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import br.com.pixelzone.pixelzone.dtos.ResponseObject;
 import br.com.pixelzone.pixelzone.dtos.conta.AlteraPontuacaoDoUsuarioRequest;
@@ -23,7 +26,9 @@ import br.com.pixelzone.pixelzone.dtos.conta.ColetaUsuarioRequest;
 import br.com.pixelzone.pixelzone.dtos.conta.ColetaUsuariosResponse;
 import br.com.pixelzone.pixelzone.dtos.conta.CriaUsuarioRequest;
 import br.com.pixelzone.pixelzone.dtos.conta.CriaUsuarioResponse;
+import br.com.pixelzone.pixelzone.dtos.conta.LeaderboardsDto;
 import br.com.pixelzone.pixelzone.dtos.conta.RemoveUsuarioRequest;
+import br.com.pixelzone.pixelzone.dtos.conta.CompraSkinRequest;
 import br.com.pixelzone.pixelzone.dtos.conta.LoginRequest;
 import br.com.pixelzone.pixelzone.dtos.conta.LoginResponse;
 import br.com.pixelzone.pixelzone.dtos.conta.UsuarioDto;
@@ -33,6 +38,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import br.com.pixelzone.pixelzone.dtos.conta.CompraSkinResponse;
 
 @RestController
 @RequestMapping("/api/v1/pixel_zone/usuario")
@@ -44,6 +50,108 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @PutMapping("/compra_skin")
+    @Operation(
+        summary = "API UTILIZADA PARA A COMPRA DE SKINS",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)   
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)
+                )
+            )        
+        }
+    )
+
+    public ResponseEntity<ResponseObject> compraSkin(@RequestBody CompraSkinRequest request){
+
+        ResponseEntity<ResponseObject> validate = request.validate();
+
+        if(validate != null){
+
+            return validate;
+
+        }
+
+        List<UsuarioDto> usuarioDto = usuarioRepository.coletaUsuarioComId(request.idUsuario());
+
+        if(usuarioDto == null || usuarioDto.size() < 1){
+
+            return ResponseObject.error(HttpStatus.NOT_FOUND, "Este usuario não existe");
+
+        }
+
+        usuarioDto.getFirst().getItems().add(request.idSkin());
+        usuarioDto.getFirst().setPoints(usuarioDto.getFirst().getPoints() - 500);
+
+        try {
+
+			usuarioRepository.compraSkin(
+			    usuarioDto.getFirst().getItems(), 
+			    usuarioDto.getFirst().getPoints(), 
+			    usuarioDto.getFirst().getId()
+			);
+
+		} catch (JsonProcessingException e) {
+
+            return ResponseObject.error(HttpStatus.INTERNAL_SERVER_ERROR, "Problema ao efetuar a compra");
+
+		}
+
+        return CompraSkinResponse.answer(usuarioDto.getFirst());
+        
+    }
+
+    @GetMapping("/leaderboard")
+    @Operation(
+        summary = "API UTILIZADA PARA A CRIAÇÃO DE UMA LEADERBOARD",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                content = @Content(
+                    schema = @Schema(implementation = LeaderboardsDto.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)
+                )
+            )
+        }
+    )
+    public ResponseEntity<ResponseObject> criaLeaderboard(){
+
+        List<UsuarioDto> usuarios = usuarioRepository.coletaLeaderboard();
+
+        if(usuarios == null || usuarios.size() < 1){
+
+            return ResponseObject.error(HttpStatus.NOT_FOUND, "Nenhum usuario esta presente no leaderboard");
+
+        }
+
+        return LeaderboardsDto.success(usuarios);
+
+    }
 
     @PostMapping("/login")
     @Operation(

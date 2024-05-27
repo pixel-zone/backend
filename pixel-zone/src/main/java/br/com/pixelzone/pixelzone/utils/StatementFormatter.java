@@ -11,6 +11,7 @@ public class StatementFormatter {
         formataCall(sb, "email", "'" + request.email() + "'");
         formataCall(sb, "password", "'" + request.senha() + "'");
         formataCall(sb, "username", "'" + request.username() + "'");
+        formataCall(sb, "chosen_skin", request.chosenSkin());
 
         return crop(sb);
         
