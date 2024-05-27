@@ -19,6 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -40,8 +43,9 @@ public class UsuarioRepository {
                 username,
                 email,
                 points,
-                user_type_id,
-                items
+                type,
+                items,
+                chosen_skin
             FROM 
                 account
             WHERE 
@@ -67,19 +71,18 @@ public class UsuarioRepository {
 
         jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 
-        String sql = """
+        String sql = String.format("""
             UPDATE
                 account
             SET
-                points = :pontuacao
+                points = %d
             WHERE 
-                id = :id;
-        """;
+                id = %d
+        """, pontuacao, id);
 
         MapSqlParameterSource map = new MapSqlParameterSource();
 
-        map.addValue("pontuacao", pontuacao);
-        map.addValue("id", id);
+        System.out.println(sql);
 
         KeyHolder keyholder = new GeneratedKeyHolder();
 
@@ -152,8 +155,9 @@ public class UsuarioRepository {
                 username,
                 email,
                 points,
-                user_type_id,
-                items
+                type,
+                items,
+                chosen_skin
             FROM
                 account
             WHERE 
@@ -183,8 +187,9 @@ public class UsuarioRepository {
                 username,
                 email,
                 points,
-                user_type_id,
-                items
+                type,
+                items,
+                chosen_skin
             FROM
                 account
             WHERE 
@@ -214,8 +219,9 @@ public class UsuarioRepository {
                 username,
                 email,
                 points,
-                user_type_id,
-                items
+                type,
+                items,
+                chosen_skin
             FROM
                 account
             WHERE 
@@ -269,8 +275,8 @@ public class UsuarioRepository {
         jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 
         String sql = String.format("""
-            INSERT INTO account(username, email, password, points, items, user_type_id)
-            VALUES('%s', '%s', '%s', 0, 0, :type);
+            INSERT INTO account(username, email, password, points, type, chosen_skin)
+            VALUES('%s', '%s', '%s', 0, :type, NULL);
         """, request.username(), request.email(), request.senha());
 
         MapSqlParameterSource map = new MapSqlParameterSource();
@@ -284,5 +290,45 @@ public class UsuarioRepository {
         return keyholder.getKeyAs(BigInteger.class);
 
     }
+
+	public List<UsuarioDto> coletaLeaderboard() {
+
+        jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+
+        String sql = """
+            SELECT 
+                id,
+                username,
+                email,
+                points,
+                type,
+                items
+            FROM 
+                account
+            ORDER BY points DESC 
+            LIMIT 10
+        """;  
+
+        return jdbcTemplate.query(sql, new UsuarioRowmappers());
+
+	}
+
+	public void compraSkin(List<Long> items, long points, long id) throws JsonProcessingException {
+
+        jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+
+        String sql = String.format("""
+            UPDATE 
+                account 
+            SET 
+                points = %d,
+                items = %s
+            WHERE 
+                id = %d
+        """, points, "'" + new ObjectMapper().writeValueAsString(items) + "'", id);
+
+        jdbcTemplate.update(sql, new MapSqlParameterSource());
+
+	}
 
 }

@@ -49,7 +49,13 @@ public record AlteraUsuarioRequest(
         nullable = true,
         description = "SÓ PRECISA SER INSERIDO CASO PRECISE SER MODIFICADO, CASO SEJA NULL SERA IGNORADO"
     )
-    @JsonProperty("type") Integer type
+    @JsonProperty("type") Integer type,
+
+    @Schema(
+        nullable = true
+    )
+    @JsonProperty("chosen_skin") Long chosenSkin
+
 
 ) {
 

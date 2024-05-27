@@ -24,5 +24,10 @@ public class AlteraAnuncioResponse extends ResponseObject {
         super.setSuccess(success);
 
     }
+    public static final AlteraAnuncioResponse success(BigInteger id, String success){
+
+        return new AlteraAnuncioResponse(id, success);
+
+    }
     
 }

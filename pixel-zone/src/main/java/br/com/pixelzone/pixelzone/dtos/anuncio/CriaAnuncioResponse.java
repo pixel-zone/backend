@@ -25,4 +25,10 @@ public class CriaAnuncioResponse extends ResponseObject {
 
     }
 
+    public static final CriaAnuncioResponse success(BigInteger id, String success){
+
+        return new CriaAnuncioResponse(id, success);
+
+    }
+
 }

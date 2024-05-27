@@ -2,6 +2,9 @@ package br.com.pixelzone.pixelzone.controller;
 
 import static br.com.pixelzone.pixelzone.utils.ResponseUtils.formataResponse;
 
+import br.com.pixelzone.pixelzone.dtos.jogos.Jackpot;
+
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.pixelzone.pixelzone.dtos.ResponseObject;
 import br.com.pixelzone.pixelzone.dtos.conta.UsuarioDto;
+import br.com.pixelzone.pixelzone.dtos.games.JogaRequest;
 import br.com.pixelzone.pixelzone.dtos.jogos.AdicionaOuRemoveUsuarioRequest;
 import br.com.pixelzone.pixelzone.dtos.jogos.ColetaPartidasResponse;
 import br.com.pixelzone.pixelzone.dtos.jogos.CriaPartidaRequest;
@@ -43,6 +47,97 @@ public class MatchmakingController {
 
     @Autowired
     private Matchmaking matchmaking;
+
+    @PutMapping("/joga")
+    @Operation(
+        summary = "API UTILIZADA PARA A REALIZAÇÃO DA JOGADA DO JACKPOT",
+        responses = {
+            @ApiResponse(
+                responseCode = "201",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)   
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)
+                )
+            )
+        }
+    )
+    public ResponseEntity<ResponseObject> joga(@RequestBody JogaRequest request){
+
+        ResponseEntity<ResponseObject> validate = request.validate();
+
+        if(validate != null){
+
+            return validate;
+
+        }
+
+        if(matchmaking.getJogos().size() < request.id()){
+
+            return ResponseObject.error(HttpStatus.NOT_FOUND, "Partida não encontrada");
+
+        }
+
+        Jogo jogo = matchmaking.getJogos().get(request.id());
+
+        if(jogo instanceof Jackpot jackpot){
+
+            int valor = (jackpot.getUsuariosDtos().size() * 500) / 10;
+
+            Collections.shuffle(jackpot.getUsuariosDtos());
+
+            for(int i = 0 ; i < jackpot.getUsuariosDtos().size() ; i++){
+
+                UsuarioDto usuarioDto = jackpot.getUsuariosDtos().get(i);
+
+                if(i == 0){
+
+                    System.out.println(usuarioDto.toString());
+
+                    usuarioRepository.alteraPontucaoDeUsuario(usuarioDto.getPoints() + (valor * 5), usuarioDto.id());
+
+                } else if(i == 1){
+
+                    System.out.println(usuarioDto.toString());
+
+                    usuarioRepository.alteraPontucaoDeUsuario(usuarioDto.getPoints() + (valor * 3), usuarioDto.id());
+
+                } else if(i == 2){
+
+                    System.out.println(usuarioDto.toString());
+
+                    usuarioRepository.alteraPontucaoDeUsuario(usuarioDto.getPoints() + (valor * 2), usuarioDto.id());
+
+                } else {
+
+                    System.out.println(usuarioDto.toString());
+
+                    usuarioRepository.alteraPontucaoDeUsuario(usuarioDto.getPoints() - 500, usuarioDto.id());
+
+                }
+
+            }
+
+        }
+
+        matchmaking.remove(request.id());
+
+        return formataResponse(
+            HttpStatus.OK, 
+            ResponseObject.success("Jackpot finalizado com sucesso")
+        );
+
+    }
         
     @PostMapping("/cria")
     @Operation(
@@ -105,6 +200,11 @@ public class MatchmakingController {
             case 1 -> {
                 matchmaking.addJogo(
                     new FlipCoin(usuariosDto.get(0))
+                );
+            }
+            case 2 -> {
+                matchmaking.addJogo(
+                    new Jackpot(usuariosDto.get(0))
                 );
             }
             default -> {
@@ -224,7 +324,7 @@ public class MatchmakingController {
 
         }
 
-        Jogo jogo = matchmaking.getJogos().get(request.idPartida());
+        Jogo jogo = matchmaking.getJogos().get(request.idPartida() - 1);
 
         if(jogo == null){
 
@@ -259,6 +359,34 @@ public class MatchmakingController {
             }
 
             flipCoin.getUsuariosDtos().add(usuarioDto); 
+
+            return formataResponse(
+                HttpStatus.OK, 
+                ResponseObject.builder().success("Usuario adicionado com sucesso").build()
+            );
+
+        } else if(jogo instanceof Jackpot jackpot){
+
+            int i = 0;
+
+            for(UsuarioDto usuarioDto2 : jackpot.getUsuariosDtos()){
+
+                if(usuarioDto2.id() == request.idUsuario()){
+
+                    jackpot.getUsuariosDtos().remove(i);
+
+                    return formataResponse(
+                        HttpStatus.OK, 
+                        ResponseObject.builder().success("Usuario removido com sucesso").build()
+                    );
+
+                }
+
+                i++;
+
+            }
+
+            jackpot.getUsuariosDtos().add(usuarioDto);
 
             return formataResponse(
                 HttpStatus.OK, 

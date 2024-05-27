@@ -83,7 +83,47 @@ public class AnuncioRepository {
 
 	}
 
-	public List<AnuncioDto> coletaAnunciosComIdUsuario(Long idUsuario) {
+    public void desaprovaAnuncio(long id){
+
+        jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+
+        String sql = """
+            UPDATE 
+                ads
+            SET 
+                verified = 1,
+                excluido = UTC_TIMESTAMP()
+            WHERE 
+                id = :id
+        """;
+
+        MapSqlParameterSource map = new MapSqlParameterSource();
+
+        map.addValue("id", id);
+
+        jdbcTemplate.update(sql, map);
+
+    }
+
+    public void aprovaAnuncio(long id){
+
+        jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+
+        String sql = """
+            UPDATE ads 
+            SET verified = 1
+            WHERE id = :id
+        """;
+
+        MapSqlParameterSource map = new MapSqlParameterSource();
+
+        map.addValue("id", id);
+
+        jdbcTemplate.update(sql, map);
+
+    }
+
+    public List<AnuncioDto> coletaAnunciosComIdUsuario(long idUsuario, int verified) {
 
         jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 
@@ -96,12 +136,80 @@ public class AnuncioRepository {
                 ads
             WHERE 
                 id_usuario = :idUsuario
-                WHERE excluido IS NULL
+                AND verified = :verified
+                AND excluido IS NULL
         """;
 
         MapSqlParameterSource map = new MapSqlParameterSource();
 
         map.addValue("idUsuario", idUsuario);
+        map.addValue("verified", verified);
+
+        try {
+
+            return jdbcTemplate.query(sql, map, new AnuncioDtoRowmappers());
+            
+        } catch (EmptyResultDataAccessException e) {
+
+            return null;
+
+        }
+
+	}
+
+	public List<AnuncioDto> coletaAnunciosComIdUsuario(long idUsuario) {
+
+        jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+
+        String sql = """
+            SELECT 
+                id,
+                id_usuario,
+                ad
+            FROM
+                ads
+            WHERE 
+                id_usuario = :idUsuario
+                AND excluido IS NULL
+        """;
+
+        MapSqlParameterSource map = new MapSqlParameterSource();
+
+        map.addValue("idUsuario", idUsuario);
+
+        try {
+
+            return jdbcTemplate.query(sql, map, new AnuncioDtoRowmappers());
+            
+        } catch (EmptyResultDataAccessException e) {
+
+            return null;
+
+        }
+
+	}
+
+    public List<AnuncioDto> coletaAnunciosComIdAnuncio(long idAnuncio, int verified) {
+
+        jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+
+        String sql = """
+            SELECT
+                id,
+                id_usuario,
+                ad
+            FROM 
+                ads
+            WHERE 
+                id = :id
+                AND verified = :verified
+                AND excluido IS NULL
+        """;
+
+        MapSqlParameterSource map = new MapSqlParameterSource();
+
+        map.addValue("id", idAnuncio);
+        map.addValue("verified", verified);
 
         try {
 

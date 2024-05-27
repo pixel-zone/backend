@@ -25,4 +25,10 @@ public class ColetaAnuncioResponse extends ResponseObject {
 
     } 
 
+    public static final ColetaAnuncioResponse success(List<AnuncioDto> anuncioDtos, String success){
+
+        return new ColetaAnuncioResponse(anuncioDtos, success);
+
+    }
+
 }

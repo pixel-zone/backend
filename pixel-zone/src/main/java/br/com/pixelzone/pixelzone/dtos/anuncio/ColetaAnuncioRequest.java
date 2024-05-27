@@ -27,7 +27,14 @@ public record ColetaAnuncioRequest(
         nullable = true,
         description = "PODE SER NULL CASO OUTRO IDENTIFICADOR SEJA UTILIZADO"
     )
-    @JsonProperty("id_anuncio") Long idAnuncio
+    @JsonProperty("id_anuncio") Long idAnuncio,
+
+    @Schema(
+        name = "verificados",
+        nullable = true,
+        description = "CASO SEJA NULL OU FALSE TODOS OS ANUNCIOS SERÃO TRAZIDOS, CASO SEJA TRUE APENAS OS VERIFICADOS SERÃO TRAZIDOS"
+    )
+    @JsonProperty("verificados") Boolean verificados
 
 ) {
 

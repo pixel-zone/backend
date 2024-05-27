@@ -37,7 +37,7 @@ public record AlteraAnuncioRequest(
 
             return formataResponse(
                 HttpStatus.BAD_REQUEST, 
-                ResponseObject.builder().error("Id do anuncio não foi adicionado a request").build()
+                ResponseObject.error("Id do anuncio não foi adicionado a request")
             );
 
         }
@@ -46,7 +46,7 @@ public record AlteraAnuncioRequest(
 
             return formataResponse(
                 HttpStatus.BAD_REQUEST, 
-                ResponseObject.builder().error("Anuncio não foi adicionado a request").build()
+                ResponseObject.error("Anuncio não foi adicionado a request")
             );
 
         }

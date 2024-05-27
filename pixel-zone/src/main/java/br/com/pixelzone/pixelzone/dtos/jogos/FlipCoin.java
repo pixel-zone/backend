@@ -20,6 +20,7 @@ public class FlipCoin extends Jogo {
 
         super.setTipo(GameTypeValues.FLIP.key);
         this.usuariosDtos = new ArrayList<>();
+        usuarioDto.setCreator(true);
         usuariosDtos.add(usuarioDto);
 
     }

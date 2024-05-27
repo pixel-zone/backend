@@ -19,11 +19,16 @@ import br.com.pixelzone.pixelzone.dtos.ResponseObject;
 import br.com.pixelzone.pixelzone.dtos.anuncio.AlteraAnuncioRequest;
 import br.com.pixelzone.pixelzone.dtos.anuncio.AlteraAnuncioResponse;
 import br.com.pixelzone.pixelzone.dtos.anuncio.AnuncioDto;
+
+import br.com.pixelzone.pixelzone.dtos.anuncio.AprovaAnuncioRequest;
+
 import br.com.pixelzone.pixelzone.dtos.anuncio.ColetaAnuncioRequest;
 import br.com.pixelzone.pixelzone.dtos.anuncio.ColetaAnuncioResponse;
 import br.com.pixelzone.pixelzone.dtos.anuncio.CriaAnuncioRequest;
 import br.com.pixelzone.pixelzone.dtos.anuncio.CriaAnuncioResponse;
 import br.com.pixelzone.pixelzone.dtos.anuncio.RemoveAnuncioRequest;
+
+import br.com.pixelzone.pixelzone.enums.Ads;
 import br.com.pixelzone.pixelzone.repositories.mysql.AnuncioRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -42,13 +47,13 @@ public class AnuncioController {
     @Autowired
     private AnuncioRepository anuncioRepository;
 
-    @PostMapping("/coleta")
+    @PostMapping("/aprova")
     @Operation(
-        summary = "API UTILIZADA PARA A COLETA DE UM ANUNCIO",
+        summary = "API UTILIZADA PARA A APROVAÇÃO DE UM ANUNCIO",
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                description = "ANUNCIO FOI COLETADO COM SUCESSO",
+                description = "STATUS DO ANUNCIO FOI ALTERADO COM SUCESSO",
                 content = @Content(
                     schema = @Schema(implementation = ResponseObject.class)
                 )
@@ -76,9 +81,79 @@ public class AnuncioController {
             )
         }
     )
-    public ResponseEntity<ResponseObject> coletaAnuncio(
-        @io.swagger.v3.oas.annotations.parameters.RequestBody
-        @RequestBody ColetaAnuncioRequest request){
+    public ResponseEntity<ResponseObject> aprovaAnuncio(@RequestBody AprovaAnuncioRequest request){
+
+        ResponseEntity<ResponseObject> validate = request.validate();
+
+        if(validate != null){
+
+            return validate;
+
+        }
+
+        List<AnuncioDto> anuncioDtos = anuncioRepository.coletaAnunciosComIdAnuncio(request.idAnuncio());
+
+        if(anuncioDtos.size() < 1){
+
+            return ResponseObject.error(
+                HttpStatus.NOT_FOUND, 
+                "O anuncio que deveria ser alterado não pode ser encontrado"
+            );
+
+        }
+
+        if(request.aprovado()){
+
+            anuncioRepository.aprovaAnuncio(request.idAnuncio());
+
+        } else {
+
+            anuncioRepository.desaprovaAnuncio(request.idAnuncio());
+
+        }
+
+        return ResponseObject.success(
+            HttpStatus.OK, 
+            "Status do anuncio foi alterado com sucesso"
+        );
+
+    }
+
+    @PostMapping("/coleta")
+    @Operation(
+        summary = "API UTILIZADA PARA A COLETA DE UM ANUNCIO",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "ANUNCIO FOI COLETADO COM SUCESSO",
+                content = @Content(
+                    schema = @Schema(implementation = ColetaAnuncioResponse.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "ALGUM DOS ITENS DA REQUEST É INVALIDO",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)   
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "ANUNCIO NÃO FOI ENCONTRADO",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "500",
+                description = "ALGUM PROBLEMA OCORREU NO SERVIDOR",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)
+                )
+            )
+        }
+    )
+    public ResponseEntity<ResponseObject> coletaAnuncio(@RequestBody ColetaAnuncioRequest request){
 
         ResponseEntity<ResponseObject> validate = request.validate();
 
@@ -90,19 +165,37 @@ public class AnuncioController {
 
         List<AnuncioDto> anuncios = null;
 
-        if(request.idAnuncio() != null){
+        if(request.verificados() == null || !request.verificados()){
 
-            anuncios = anuncioRepository.coletaAnunciosComIdAnuncio(request.idAnuncio());
+            if(request.idAnuncio() != null){
+
+                anuncios = anuncioRepository.coletaAnunciosComIdAnuncio(request.idAnuncio());
+
+            }
+
+            if(request.idUsuario() != null){
+
+                anuncios = anuncioRepository.coletaAnunciosComIdUsuario(request.idUsuario());
+
+            }
+
+        } else {
+
+            if(request.idAnuncio() != null){
+
+                anuncios = anuncioRepository.coletaAnunciosComIdAnuncio(request.idAnuncio(), Ads.APROVADO.key);
+
+            }
+
+            if(request.idUsuario() != null){
+
+                anuncios = anuncioRepository.coletaAnunciosComIdUsuario(request.idUsuario(), Ads.APROVADO.key);
+
+            }
 
         }
 
-        if(request.idUsuario() != null){
-
-            anuncios = anuncioRepository.coletaAnunciosComIdUsuario(request.idUsuario());
-
-        }
-
-        if(anuncios != null){
+        if(anuncios != null && anuncios.size() > 0){
 
             return formataResponse(
                 HttpStatus.OK, 
@@ -230,8 +323,7 @@ public class AnuncioController {
 
         }
 
-        
-        List<AnuncioDto> anunciosDto = anuncioRepository.coletaAnunciosComIdAnuncio(request.id());
+        List<AnuncioDto> anunciosDto = anuncioRepository.coletaAnunciosComIdAnuncio(request.id(), Ads.APROVADO.key);
         
         if(anunciosDto == null){
             

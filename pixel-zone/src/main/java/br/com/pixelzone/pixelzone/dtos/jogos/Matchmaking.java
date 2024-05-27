@@ -11,6 +11,12 @@ public class Matchmaking {
 
     private List<Jogo> jogos;
 
+    public void remove(int id){
+
+        jogos.remove(id);
+
+    }
+
     public void addJogo(Jogo jogo){
 
         jogos.add(jogo);

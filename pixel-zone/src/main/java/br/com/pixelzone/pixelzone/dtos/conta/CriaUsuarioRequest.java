@@ -82,7 +82,7 @@ public record CriaUsuarioRequest(
                 ResponseObject.builder().error("Tipo de usuario que esta sendo criado").build()
             );
 
-        }
+        } 
 
         return null;
 
