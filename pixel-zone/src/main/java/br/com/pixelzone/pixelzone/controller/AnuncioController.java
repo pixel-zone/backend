@@ -19,12 +19,15 @@ import br.com.pixelzone.pixelzone.dtos.ResponseObject;
 import br.com.pixelzone.pixelzone.dtos.anuncio.AlteraAnuncioRequest;
 import br.com.pixelzone.pixelzone.dtos.anuncio.AlteraAnuncioResponse;
 import br.com.pixelzone.pixelzone.dtos.anuncio.AnuncioDto;
+
 import br.com.pixelzone.pixelzone.dtos.anuncio.AprovaAnuncioRequest;
+
 import br.com.pixelzone.pixelzone.dtos.anuncio.ColetaAnuncioRequest;
 import br.com.pixelzone.pixelzone.dtos.anuncio.ColetaAnuncioResponse;
 import br.com.pixelzone.pixelzone.dtos.anuncio.CriaAnuncioRequest;
 import br.com.pixelzone.pixelzone.dtos.anuncio.CriaAnuncioResponse;
 import br.com.pixelzone.pixelzone.dtos.anuncio.RemoveAnuncioRequest;
+
 import br.com.pixelzone.pixelzone.enums.Ads;
 import br.com.pixelzone.pixelzone.repositories.mysql.AnuncioRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -320,7 +323,6 @@ public class AnuncioController {
 
         }
 
-        
         List<AnuncioDto> anunciosDto = anuncioRepository.coletaAnunciosComIdAnuncio(request.id(), Ads.APROVADO.key);
         
         if(anunciosDto == null){
