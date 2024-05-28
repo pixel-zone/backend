@@ -7,6 +7,7 @@
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/dtos/usertype/ColetaUserTypesRequest.java
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/dtos/usertype/CriaUserTypeRequest.java
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/dtos/games/AlteraJogoRequest.java
+/home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/config/WebConfig.java
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/dtos/ResponseObject.java
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/repositories/mysql/UserTypeRepository.java
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/repositories/mysql/rowmappers/UserTypeRowMapper.java
