@@ -28,7 +28,12 @@ public record CriaPartidaRequest(
         nullable = false,
         description = "ID DO TIPO DE JOGO QUE SERA JOGADO"
     )
-    @JsonProperty("game_type_id") Integer gameTypeId
+    @JsonProperty("game_type_id") Integer gameTypeId,
+
+    @Schema(
+        nullable = false
+    )
+    @JsonProperty("jogada") Long jogada
 
 ) {
 
@@ -51,6 +56,15 @@ public record CriaPartidaRequest(
             );
 
         } 
+
+        if(jogada == null){
+
+            return formataResponse(
+                HttpStatus.BAD_REQUEST, 
+                ResponseObject.builder().error("A variavel 'jogada' não pode ser null").build()
+            );
+
+        }
 
         return null;
 

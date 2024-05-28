@@ -22,13 +22,15 @@ public class Robots extends Jogo {
     @JsonProperty("usuarios") private List<UsuarioDto> usuariosDtos;
     @JsonProperty("jogadas") private Map<Long, Long> jogadorEJogada;
 
-    public Robots(UsuarioDto usuarioDto, long id){
+    public Robots(UsuarioDto usuarioDto, long id, long jogada){
 
         super.setTipo(GameTypeValues.ROBOT.key);
         super.setId(id);
 
         this.usuariosDtos = new ArrayList<>();
         this.jogadorEJogada = new HashMap<>();
+
+        jogadorEJogada.put(usuarioDto.getId(), jogada);
 
         usuarioDto.setCreator(true);
 

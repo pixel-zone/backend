@@ -7,7 +7,6 @@ import br.com.pixelzone.pixelzone.dtos.jogos.Jackpot;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,7 +39,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/v1/pixel_zone/matchmaking")
+@RequestMapping("/api/v1/pixel_zone/matchmaking/v1/pixel_zone/matchmaking")
 @Tag(
     name = "APIs-PIXEL-ZONE: MATCHMAKING",
     description = "CONTEM TODOS OS ENPOINTS RELACIONADOS AS PARTIDAS"
@@ -99,49 +98,9 @@ public class MatchmakingController {
 
             if(jogo.getId() == request.idPartida()){
 
-                long idJogador = 0;
+                matchmaking.remove(i);
 
-                if(jogo instanceof Robots robots){
-
-                    for(UsuarioDto usuarioDto : robots.getUsuariosDtos()){
-
-                        if(usuarioDto.isCreator()){
-
-                            idJogador = usuarioDto.getId();
-
-                            break;
-
-                        }
-
-                    }
-
-                } else if(jogo instanceof FlipCoin flipCoin){
-
-                    for(UsuarioDto usuarioDto : flipCoin.getUsuariosDtos()){
-
-                        if(usuarioDto.isCreator()){
-
-                            idJogador = usuarioDto.getId();
-
-                            break;
-
-                        }
-
-                    }
-
-                }
-
-                if(idJogador == request.idJogador()){
-
-                    matchmaking.getJogos().remove(i);
-
-                    return ResponseObject.success(HttpStatus.OK, "Partida removida com sucesso");
-
-                } else {
-
-                    return ResponseObject.error(HttpStatus.UNAUTHORIZED, "Apenas o criador da partida pode finalizala");
-
-                }
+                return ResponseObject.success(HttpStatus.OK, "Partida removida com sucesso");
 
             }
 
@@ -346,7 +305,7 @@ public class MatchmakingController {
         switch (request.gameTypeId()) {
             case 1 -> {
                 matchmaking.addJogo(
-                    new FlipCoin(usuariosDto.get(0), id)
+                    new FlipCoin(usuariosDto.get(0), id, request.jogada())
                 );
             }
             case 2 -> {
@@ -356,7 +315,7 @@ public class MatchmakingController {
             }
             case 3 -> {
                 matchmaking.addJogo(
-                    new Robots(usuariosDto.get(0), id)
+                    new Robots(usuariosDto.get(0), id, request.jogada())
                 );
             }
             default -> {
