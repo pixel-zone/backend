@@ -21,13 +21,15 @@ public class FlipCoin extends Jogo {
     @JsonProperty("usuarios") private List<UsuarioDto> usuariosDtos;
     @JsonProperty("jogadas") private Map<Long, Long> jogadorEJogada;
 
-    public FlipCoin(UsuarioDto usuarioDto, long id){
+    public FlipCoin(UsuarioDto usuarioDto, long id, long jogada){
 
         super.setTipo(GameTypeValues.FLIP.key);
         super.setId(id);
 
         this.usuariosDtos = new ArrayList<>();
         this.jogadorEJogada = new HashMap<>();
+
+        jogadorEJogada.put(usuarioDto.getId(), jogada);
 
         usuarioDto.setCreator(true);
 
