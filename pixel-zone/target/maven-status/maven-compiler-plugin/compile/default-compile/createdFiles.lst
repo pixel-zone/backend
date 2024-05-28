@@ -40,6 +40,7 @@ br/com/pixelzone/pixelzone/dtos/anuncio/AlteraAnuncioRequest.class
 br/com/pixelzone/pixelzone/dtos/games/AlteraJogoRequest.class
 br/com/pixelzone/pixelzone/repositories/mysql/UsuarioRepository.class
 br/com/pixelzone/pixelzone/dtos/jogos/Resultado.class
+br/com/pixelzone/pixelzone/config/WebConfig.class
 br/com/pixelzone/pixelzone/dtos/jogos/Jogador.class
 br/com/pixelzone/pixelzone/dtos/jogos/FlipCoin.class
 br/com/pixelzone/pixelzone/enums/GameTypeValues.class
