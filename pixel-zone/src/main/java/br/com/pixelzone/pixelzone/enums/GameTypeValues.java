@@ -3,7 +3,8 @@ package br.com.pixelzone.pixelzone.enums;
 public enum GameTypeValues {
 
     FLIP(1, "FLIP"),
-    JACKPOT(2, "JACKPOT");
+    JACKPOT(2, "JACKPOT"),
+    ROBOT(3, "ROBOT");
 
     public int key;
     public String value;

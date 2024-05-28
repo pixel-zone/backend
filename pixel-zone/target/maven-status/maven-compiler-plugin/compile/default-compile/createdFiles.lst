@@ -48,6 +48,7 @@ br/com/pixelzone/pixelzone/dtos/conta/LeaderboardsDto.class
 br/com/pixelzone/pixelzone/dtos/conta/ColetaUsuariosResponse.class
 br/com/pixelzone/pixelzone/repositories/mysql/rowmappers/UserTypeRowMapper.class
 br/com/pixelzone/pixelzone/dtos/usertype/UserTypeDto.class
+br/com/pixelzone/pixelzone/dtos/jogos/Robots.class
 br/com/pixelzone/pixelzone/dtos/games/ColetaJogoRequest.class
 br/com/pixelzone/pixelzone/dtos/anuncio/AlteraAnuncioResponse.class
 br/com/pixelzone/pixelzone/repositories/mysql/AnuncioRepository.class
