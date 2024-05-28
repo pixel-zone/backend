@@ -9,19 +9,35 @@ import br.com.pixelzone.pixelzone.dtos.ResponseObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(
-    name = "id"
+    name = "joga_request"
 )
 public record JogaRequest(
 
-    @JsonProperty("id") Integer id
+    @Schema(
+        nullable = true,
+        description = "Apenas precisa ser utilizado para o tipo de jogo 'jackpot'"
+    )
+    @JsonProperty("id_partida") Long idPartida,
+
+    @Schema(
+        nullable = true,
+        description = "Apenas precisa ser utilizado para os tipos de jogo 'robots' e 'flip_coin'"
+    )
+    @JsonProperty("id_jogador") Long idJogador,
+
+    @Schema(
+        nullable = true,
+        description = "Apenas precisa ser utilizado para os tipos de jogo 'robots' e 'flip_coin'"
+    )
+    @JsonProperty("jogada") Long jogada
 
 ) {
 
     public ResponseEntity<ResponseObject> validate(){
 
-        if(id == null){
+        if(idPartida == null && idJogador == null && jogada == null){
 
-            return ResponseObject.error(HttpStatus.BAD_REQUEST, "A variavel 'id' não foi adicionada ao corpo da request");
+            return ResponseObject.error(HttpStatus.BAD_REQUEST, "Nenhum item foi adicionado ao corpo da request");
 
         }
 

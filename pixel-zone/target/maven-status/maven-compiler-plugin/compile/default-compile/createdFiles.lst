@@ -29,6 +29,7 @@ br/com/pixelzone/pixelzone/PixelZoneApplication.class
 br/com/pixelzone/pixelzone/dtos/usertype/ColetaUserTypesRequest.class
 br/com/pixelzone/pixelzone/dtos/conta/CompraSkinRequest.class
 br/com/pixelzone/pixelzone/dtos/games/RemoveJogoRequest.class
+br/com/pixelzone/pixelzone/dtos/jogos/RemovePartidaRequest.class
 br/com/pixelzone/pixelzone/controller/UserTypeController.class
 br/com/pixelzone/pixelzone/controller/MatchmakingController.class
 br/com/pixelzone/pixelzone/dtos/games/CriaJogoRequest.class

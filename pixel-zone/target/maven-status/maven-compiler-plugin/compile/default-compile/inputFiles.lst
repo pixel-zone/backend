@@ -54,6 +54,7 @@
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/dtos/conta/AlteraUsuarioResponse.java
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/dtos/conta/LoginResponse.java
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/dtos/jogos/CriaPartidaRequest.java
+/home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/dtos/jogos/RemovePartidaRequest.java
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/repositories/mysql/JogoRepository.java
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/enums/GameTypeValues.java
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/enums/Ads.java

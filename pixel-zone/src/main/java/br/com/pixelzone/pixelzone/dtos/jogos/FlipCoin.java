@@ -1,7 +1,11 @@
 package br.com.pixelzone.pixelzone.dtos.jogos;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import br.com.pixelzone.pixelzone.dtos.conta.UsuarioDto;
 import br.com.pixelzone.pixelzone.enums.GameTypeValues;
@@ -14,21 +18,21 @@ import lombok.ToString;
 @ToString
 public class FlipCoin extends Jogo {
 
-    private List<UsuarioDto> usuariosDtos;
+    @JsonProperty("usuarios") private List<UsuarioDto> usuariosDtos;
+    @JsonProperty("jogadas") private Map<Long, Long> jogadorEJogada;
 
-    public FlipCoin(UsuarioDto usuarioDto){
+    public FlipCoin(UsuarioDto usuarioDto, long id){
 
         super.setTipo(GameTypeValues.FLIP.key);
+        super.setId(id);
+
         this.usuariosDtos = new ArrayList<>();
+        this.jogadorEJogada = new HashMap<>();
+
         usuarioDto.setCreator(true);
+
         usuariosDtos.add(usuarioDto);
 
     }
-
-    public int jogar(){
-
-        return (int) (Math.random() * 2);
-
-    }
-    
+   
 }

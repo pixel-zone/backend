@@ -16,11 +16,15 @@ public class Jackpot extends Jogo {
 
     private List<UsuarioDto> usuariosDtos;
 
-    public Jackpot(UsuarioDto usuarioDto){
+    public Jackpot(UsuarioDto usuarioDto, long id){
 
         super.setTipo(GameTypeValues.JACKPOT.key);
+        super.setId(id);
+
         this.usuariosDtos = new ArrayList<>();
+
         usuarioDto.setCreator(true);
+        
         usuariosDtos.add(usuarioDto);
 
     }
