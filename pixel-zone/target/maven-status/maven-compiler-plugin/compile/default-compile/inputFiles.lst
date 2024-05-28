@@ -1,3 +1,4 @@
+/home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/dtos/jogos/Robots.java
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/repositories/mysql/UsuarioRepository.java
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/controller/MatchmakingController.java
 /home/bruno/Documents/pixel/backend/pixel-zone/src/main/java/br/com/pixelzone/pixelzone/dtos/jogos/CriaPartidaResponse.java

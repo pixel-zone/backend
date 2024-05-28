@@ -27,6 +27,7 @@ import br.com.pixelzone.pixelzone.dtos.jogos.CriaPartidaResponse;
 import br.com.pixelzone.pixelzone.dtos.jogos.FlipCoin;
 import br.com.pixelzone.pixelzone.dtos.jogos.Jogo;
 import br.com.pixelzone.pixelzone.dtos.jogos.Matchmaking;
+import br.com.pixelzone.pixelzone.dtos.jogos.Robots;
 import br.com.pixelzone.pixelzone.repositories.mysql.UsuarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -205,6 +206,11 @@ public class MatchmakingController {
             case 2 -> {
                 matchmaking.addJogo(
                     new Jackpot(usuariosDto.get(0))
+                );
+            }
+            case 3 -> {
+                matchmaking.addJogo(
+                    new Robots(usuariosDto.get(0))
                 );
             }
             default -> {
@@ -387,6 +393,34 @@ public class MatchmakingController {
             }
 
             jackpot.getUsuariosDtos().add(usuarioDto);
+
+            return formataResponse(
+                HttpStatus.OK, 
+                ResponseObject.builder().success("Usuario adicionado com sucesso").build()
+            );
+
+        } else if(jogo instanceof Robots robots){
+
+            int i = 0;
+
+            for(UsuarioDto usuarioDto2 : robots.getUsuariosDtos()){
+
+                if(usuarioDto2.id() == request.idUsuario()){
+
+                    robots.getUsuariosDtos().remove(i);
+
+                    return formataResponse(
+                        HttpStatus.OK, 
+                        ResponseObject.builder().success("Usuario removido com sucesso").build()
+                    );
+
+                }
+
+                i++;
+
+            }
+
+            robots.getUsuariosDtos().add(usuarioDto);
 
             return formataResponse(
                 HttpStatus.OK, 
