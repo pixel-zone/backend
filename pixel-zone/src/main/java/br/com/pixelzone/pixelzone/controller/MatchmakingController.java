@@ -6,10 +6,13 @@ import br.com.pixelzone.pixelzone.dtos.jogos.Jackpot;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,6 +30,7 @@ import br.com.pixelzone.pixelzone.dtos.jogos.CriaPartidaResponse;
 import br.com.pixelzone.pixelzone.dtos.jogos.FlipCoin;
 import br.com.pixelzone.pixelzone.dtos.jogos.Jogo;
 import br.com.pixelzone.pixelzone.dtos.jogos.Matchmaking;
+import br.com.pixelzone.pixelzone.dtos.jogos.RemovePartidaRequest;
 import br.com.pixelzone.pixelzone.dtos.jogos.Robots;
 import br.com.pixelzone.pixelzone.repositories.mysql.UsuarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,6 +52,104 @@ public class MatchmakingController {
 
     @Autowired
     private Matchmaking matchmaking;
+
+    @DeleteMapping("/remove")
+    @Operation(
+        summary = "API UTILIZADA PARA A REMOÇÃO DE UMA PARTIDA",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "401",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)   
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                content = @Content(
+                    schema = @Schema(implementation = ResponseObject.class)
+                )
+            )
+        }
+    )
+    public ResponseEntity<ResponseObject> remove(@RequestBody RemovePartidaRequest request){
+
+        ResponseEntity<ResponseObject> validate = request.validate();
+
+        if(validate != null){
+
+            return validate;
+
+        }
+
+        for(int i = 0 ; i < matchmaking.getJogos().size() ; i++){
+
+            Jogo jogo = matchmaking.getJogos().get(i);
+
+            if(jogo.getId() == request.idPartida()){
+
+                long idJogador = 0;
+
+                if(jogo instanceof Robots robots){
+
+                    for(UsuarioDto usuarioDto : robots.getUsuariosDtos()){
+
+                        if(usuarioDto.isCreator()){
+
+                            idJogador = usuarioDto.getId();
+
+                            break;
+
+                        }
+
+                    }
+
+                } else if(jogo instanceof FlipCoin flipCoin){
+
+                    for(UsuarioDto usuarioDto : flipCoin.getUsuariosDtos()){
+
+                        if(usuarioDto.isCreator()){
+
+                            idJogador = usuarioDto.getId();
+
+                            break;
+
+                        }
+
+                    }
+
+                }
+
+                if(idJogador == request.idJogador()){
+
+                    matchmaking.getJogos().remove(i);
+
+                    return ResponseObject.success(HttpStatus.OK, "Partida removida com sucesso");
+
+                } else {
+
+                    return ResponseObject.error(HttpStatus.UNAUTHORIZED, "Apenas o criador da partida pode finalizala");
+
+                }
+
+            }
+
+        }
+
+        return ResponseObject.error(HttpStatus.NOT_FOUND, "Partida não encontrada");
+
+    }
 
     @PutMapping("/joga")
     @Operation(
@@ -83,13 +185,30 @@ public class MatchmakingController {
 
         }
 
-        if(matchmaking.getJogos().size() < request.id()){
+        Jogo jogo = null;
+        int id = -1;
 
-            return ResponseObject.error(HttpStatus.NOT_FOUND, "Partida não encontrada");
+        for(Jogo jogo1 : matchmaking.getJogos()){
+
+            if(jogo1.getId() == request.idPartida()){
+
+                jogo = jogo1;
+                id++;
+
+                break;
+
+            }
 
         }
 
-        Jogo jogo = matchmaking.getJogos().get(request.id());
+        if(jogo == null){
+
+            formataResponse(
+                HttpStatus.NOT_FOUND, 
+                ResponseObject.error("Nenhuma partida encontrada com este id")
+            );
+
+        }
 
         if(jogo instanceof Jackpot jackpot){
 
@@ -103,35 +222,60 @@ public class MatchmakingController {
 
                 if(i == 0){
 
-                    System.out.println(usuarioDto.toString());
-
                     usuarioRepository.alteraPontucaoDeUsuario(usuarioDto.getPoints() + (valor * 5), usuarioDto.id());
 
                 } else if(i == 1){
-
-                    System.out.println(usuarioDto.toString());
 
                     usuarioRepository.alteraPontucaoDeUsuario(usuarioDto.getPoints() + (valor * 3), usuarioDto.id());
 
                 } else if(i == 2){
 
-                    System.out.println(usuarioDto.toString());
-
                     usuarioRepository.alteraPontucaoDeUsuario(usuarioDto.getPoints() + (valor * 2), usuarioDto.id());
 
                 } else {
-
-                    System.out.println(usuarioDto.toString());
 
                     usuarioRepository.alteraPontucaoDeUsuario(usuarioDto.getPoints() - 500, usuarioDto.id());
 
                 }
 
+            }   
+
+            matchmaking.remove(id);
+
+        } else if(jogo instanceof FlipCoin flipCoin){
+
+            long idJogador = 0;
+
+            for(Map.Entry<Long, Long> entry : flipCoin.getJogadorEJogada().entrySet()){
+
+                if(entry.getValue() == request.jogada()){
+
+                    idJogador = entry.getKey();
+                    break;
+
+                }
+
+            }
+
+            if(idJogador == 0){
+
+                flipCoin.getJogadorEJogada().put(request.idJogador(), request.jogada());
+
+                return formataResponse(
+                    HttpStatus.CONFLICT, 
+                    ResponseObject.builder().error("Jogada efeituada").build()
+                );
+
+            } else {
+
+                return formataResponse(
+                    HttpStatus.CONFLICT, 
+                    ResponseObject.builder().error("Jogada ja realizada por outro jogador").build()
+                );
+
             }
 
         }
-
-        matchmaking.remove(request.id());
 
         return formataResponse(
             HttpStatus.OK, 
@@ -197,20 +341,22 @@ public class MatchmakingController {
 
         }
 
+        long id = matchmaking.getJogos().size(); 
+
         switch (request.gameTypeId()) {
             case 1 -> {
                 matchmaking.addJogo(
-                    new FlipCoin(usuariosDto.get(0))
+                    new FlipCoin(usuariosDto.get(0), id)
                 );
             }
             case 2 -> {
                 matchmaking.addJogo(
-                    new Jackpot(usuariosDto.get(0))
+                    new Jackpot(usuariosDto.get(0), id)
                 );
             }
             case 3 -> {
                 matchmaking.addJogo(
-                    new Robots(usuariosDto.get(0))
+                    new Robots(usuariosDto.get(0), id)
                 );
             }
             default -> {
@@ -330,7 +476,23 @@ public class MatchmakingController {
 
         }
 
-        Jogo jogo = matchmaking.getJogos().get(request.idPartida() - 1);
+        Jogo jogo = null;
+
+        int id = -1;
+
+        for(Jogo jogo1 : matchmaking.getJogos()){
+
+            if(jogo1.getId() == request.idPartida()){
+
+                jogo = jogo1;
+
+                id++;
+
+                break;
+
+            }
+
+        }
 
         if(jogo == null){
 
@@ -351,7 +513,11 @@ public class MatchmakingController {
 
                     if(flipCoin.getUsuariosDtos().size() < 1){
 
-                        matchmaking.getJogos().set(request.idPartida(), null);
+                        matchmaking.remove(id);
+
+                    } else {
+
+                        flipCoin.getUsuariosDtos().getFirst().setCreator(true);
 
                     }
 
@@ -381,6 +547,16 @@ public class MatchmakingController {
 
                     jackpot.getUsuariosDtos().remove(i);
 
+                    if(jackpot.getUsuariosDtos().size() < 1){
+
+                        matchmaking.remove(id);
+
+                    } else {
+
+                        jackpot.getUsuariosDtos().getFirst().setCreator(true);
+
+                    }
+
                     return formataResponse(
                         HttpStatus.OK, 
                         ResponseObject.builder().success("Usuario removido com sucesso").build()
@@ -408,6 +584,16 @@ public class MatchmakingController {
                 if(usuarioDto2.id() == request.idUsuario()){
 
                     robots.getUsuariosDtos().remove(i);
+
+                    if(robots.getUsuariosDtos().size() < 1){
+
+                        matchmaking.remove(id);
+
+                    } else {
+
+                        robots.getUsuariosDtos().getFirst().setCreator(true);
+
+                    }
 
                     return formataResponse(
                         HttpStatus.OK, 

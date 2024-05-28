@@ -29,7 +29,7 @@ public record CriaPartidaRequest(
         description = "ID DO TIPO DE JOGO QUE SERA JOGADO"
     )
     @JsonProperty("game_type_id") Integer gameTypeId
-    
+
 ) {
 
     public ResponseEntity<ResponseObject> validate(){
@@ -50,7 +50,7 @@ public record CriaPartidaRequest(
                 ResponseObject.builder().error("Id do tipo de partida não foi adicionado").build()
             );
 
-        }
+        } 
 
         return null;
 

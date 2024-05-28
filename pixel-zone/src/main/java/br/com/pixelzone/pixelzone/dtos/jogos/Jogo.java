@@ -14,5 +14,6 @@ import lombok.ToString;
 public abstract class Jogo {
 
     private int tipo;
+    private long id;
    
 }
